@@ -1,0 +1,20 @@
+venv\Scripts\activate
+Navigate to the backend directory:
+cd "c:\Users\heyan\OneDrive\Desktop\Sem 6\CV\LAB\Emergency-Vehicles-Detection\backend"
+Create a new virtual environment:
+python -m venv venv
+Activate the virtual environment:
+venv\Scripts\activate
+Install TensorFlow separately first (this can help avoid the path length issue you're seeing):
+pip install tensorflow==2.13.0
+Then install the remaining packages:
+pip install flask flask-cors flask-sqlalchemy flask-login opencv-python pillow numpy python-dotenv gunicorn flask-socketio eventlet pymongo pandas scikit-learn pyjwt matplotlib werkzeug==2.3.7
+Start the Flask server:
+python app.py
+2. Frontend Setup (React)
+Navigate to the frontend directory:
+cd "c:\Users\heyan\OneDrive\Desktop\Sem 6\CV\LAB\Emergency-Vehicles-Detection\frontend"
+Install the dependencies:
+npm install
+Start the development server:
+npm start

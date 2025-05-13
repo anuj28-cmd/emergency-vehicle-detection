@@ -1,0 +1,110 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Exo 2', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #0a1929;
+  color: #ffffff;
+  overflow-x: hidden;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a1929;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #00e5ff;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00b2cc;
+}
+
+/* Animations */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 229, 255, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(0, 229, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 229, 255, 0);
+  }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes glowing {
+  0% {
+    text-shadow: 0 0 5px rgba(0, 229, 255, 0.7);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(0, 229, 255, 0.9);
+  }
+  100% {
+    text-shadow: 0 0 5px rgba(0, 229, 255, 0.7);
+  }
+}
+
+.glowing-text {
+  animation: glowing 2s infinite;
+}
+
+/* Glass morphism effect */
+.glass {
+  background: rgba(10, 25, 41, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(to right, #00e5ff, #2196f3);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Grid background */
+.grid-bg {
+  background-image: 
+    linear-gradient(rgba(10, 25, 41, 0.8) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10, 25, 41, 0.8) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-color: #05101e;
+}
+
+/* Card hover effects */
+.hover-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 229, 255, 0.3);
+}
