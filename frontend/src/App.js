@@ -14,6 +14,7 @@ const Statistics = React.lazy(() => import('./pages/Statistics'));
 const Settings = React.lazy(() => import('./pages/Settings'));
 const Profile = React.lazy(() => import('./pages/Profile'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
+const MapMonitor = React.lazy(() => import('./pages/MapMonitor'));
 
 // Loading component for suspense fallback
 const LoadingPage = () => (
@@ -77,6 +78,12 @@ function App() {
               <History />
             </ProtectedRoute>
           } />
+          <Route path="/map-monitor" element={
+            <ProtectedRoute>
+              <MapMonitor />
+            </ProtectedRoute>
+          } />
+          
           <Route path="/profile" element={
             <ProtectedRoute>
               <Profile />

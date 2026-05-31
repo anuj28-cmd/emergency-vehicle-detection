@@ -2,7 +2,7 @@ venvvenv
 venv/
 .env
 .venv
-
+__pycache__/
 
 # misc
 .DS_Store
@@ -10,4 +10,21 @@ venv/
 .env.development.local
 .env.test.local
 .env.production.local
-__pycache__
+
+# Databases
+*.db
+backend/database.db
+backend/generated_jwt_secret.txt
+backend/initial_admin.txt
+
+# Large Datasets and Zips
+*.zip
+Data/
+Enhanced_Dataset/
+
+# Temp Uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Results
+Results/

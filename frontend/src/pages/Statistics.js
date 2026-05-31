@@ -77,18 +77,37 @@ const Statistics = () => {
   const [tabValue, setTabValue] = useState(0);
 
   useEffect(() => {
-    // In a real app, fetch actual statistics from the backend
     const fetchStatistics = async () => {
       try {
         setLoading(true);
-        // Simulate API call with a delay
-        setTimeout(() => {
-          setStats(mockData);
-          setLoading(false);
-        }, 1000);
+        const response = await axios.get('/api/statistics');
+        const backendData = response.data;
+        
+        // Map backend statistics to the format expected by Statistics.js charts
+        const detectionsByType = backendData.detection_types.map(item => ({
+          name: item.name === 'Emergency Vehicle' ? 'Emergency Vehicles' : 
+                item.name === 'Normal Vehicle' ? 'Normal Vehicles' : item.name,
+          value: item.value
+        }));
+        
+        // Map monthly data
+        const detectionsByMonth = backendData.monthly_data.map(item => ({
+          name: item.name,
+          emergency: item.emergency_vehicle || 0,
+          normal: item.normal_vehicle || 0
+        }));
+        
+        // Merge dynamic database stats with other local mock statistics
+        setStats({
+          ...mockData,
+          detectionsByType: detectionsByType.length > 0 ? detectionsByType : mockData.detectionsByType,
+          detectionsByMonth: detectionsByMonth.length > 0 ? detectionsByMonth : mockData.detectionsByMonth,
+          avgConfidence: backendData.avg_confidence || 0
+        });
       } catch (err) {
         console.error('Error fetching statistics:', err);
-        setError('Failed to load statistics. Please try again later.');
+        setError(err.response?.data?.message || 'Failed to load statistics. Please try again later.');
+      } finally {
         setLoading(false);
       }
     };

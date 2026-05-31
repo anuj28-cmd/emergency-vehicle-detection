@@ -22,6 +22,7 @@ import axios from 'axios';
 import Webcam from 'react-webcam';
 import { useSnackbar } from 'notistack';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 // Socket.io client for real-time communication
 import io from 'socket.io-client';
@@ -116,8 +117,9 @@ const SettingsPanel = styled(Box)(({ theme }) => ({
 
 export default function Detector() {
   const theme = useTheme();
-  const { isAuthenticated, currentUser } = useAuth();
+  const { isAuthenticated, currentUser, token } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
+  const navigate = useNavigate();
   const webcamRef = useRef(null);
   const socketRef = useRef(null);
   
@@ -223,6 +225,9 @@ export default function Detector() {
       // Add to recent detections
       addToRecentDetections(response.data);
       
+      // Check if green corridor was triggered
+      checkEmergencyCorridor(response.data);
+      
       // Show success message
       enqueueSnackbar('Detection completed successfully', { variant: 'success' });
     } catch (error) {
@@ -285,6 +290,9 @@ export default function Detector() {
         // Add to recent detections
         addToRecentDetections(response.data);
         
+        // Check if green corridor was triggered
+        checkEmergencyCorridor(response.data);
+        
         // Play alert sound if enabled and emergency vehicle detected
         if (advancedOptions.alertSound && response.data.detection_type === 'Emergency Vehicle') {
           playAlertSound();
@@ -298,6 +306,27 @@ export default function Detector() {
     }
   };
   
+  const checkEmergencyCorridor = (data) => {
+    if (data.trigger_corridor) {
+      const pointName = data.start_node ? data.start_node.replace(/_/g, ' ') : 'Unknown Intersection';
+      enqueueSnackbar(`Emergency vehicle detected at ${pointName}! Select a destination to enable the green corridor.`, { 
+        variant: 'error',
+        persist: true,
+        action: (key) => (
+          <Button 
+            size="small" 
+            style={{ color: '#00e5ff', fontWeight: 'bold' }} 
+            onClick={() => {
+              navigate(`/map-monitor?start=${data.start_node}`);
+            }}
+          >
+            Select Destination
+          </Button>
+        )
+      });
+    }
+  };
+
   // Toggle stream mode for continuous detection
   const handleToggleStream = () => {
     if (streamMode) {
@@ -341,7 +370,7 @@ export default function Detector() {
           type: data.detection_type,
           confidence: data.confidence,
           timestamp: new Date().toISOString(),
-          image: `/api/uploads/${data.processed_filename}`
+          image: `/api/uploads/${data.processed_filename}?token=${token}`
         },
         ...prev
       ].slice(0, 5); // Keep only last 5 detections
@@ -350,6 +379,42 @@ export default function Detector() {
     });
   };
   
+  // Webcam access failure handler
+  const handleWebcamError = (error) => {
+    console.error("Webcam error:", error);
+    enqueueSnackbar("Webcam access failed. Please check camera permissions.", { variant: "error" });
+    setCameraActive(false);
+  };
+
+  // Save detection (Download processed image)
+  const handleSaveDetection = () => {
+    if (!detectionResult) return;
+    const imageUrl = `/api/uploads/${detectionResult.processed_filename}?token=${token}`;
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = detectionResult.processed_filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    enqueueSnackbar('Processed image download started', { variant: 'success' });
+  };
+
+  // Share detection (Web share or clipboard)
+  const handleShareDetection = () => {
+    if (!detectionResult) return;
+    const imageUrl = `${window.location.origin}/api/uploads/${detectionResult.processed_filename}?token=${token}`;
+    if (navigator.share) {
+      navigator.share({
+        title: 'Emergency Vehicle Detection',
+        text: `Detected ${detectionResult.detection_type} with ${detectionResult.confidence.toFixed(1)}% confidence`,
+        url: imageUrl
+      }).catch(err => console.log('Share failed:', err));
+    } else {
+      navigator.clipboard.writeText(imageUrl);
+      enqueueSnackbar('Detection image link copied to clipboard!', { variant: 'info' });
+    }
+  };
+
   // Reset the detector
   const handleReset = () => {
     setFile(null);
@@ -559,7 +624,7 @@ export default function Detector() {
                   {filePreview ? (
                     <Box>
                       <DetectionImage 
-                        src={detectionResult ? `/api/uploads/${detectionResult.processed_filename}` : filePreview} 
+                        src={detectionResult ? `/api/uploads/${detectionResult.processed_filename}?token=${token}` : filePreview} 
                         alt="Detection" 
                       />
                       <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', gap: 2 }}>
@@ -627,6 +692,7 @@ export default function Detector() {
                         screenshotFormat="image/jpeg"
                         width="100%"
                         videoConstraints={{ facingMode: "environment" }}
+                        onUserMediaError={handleWebcamError}
                       />
                       <ControlsOverlay>
                         <Tooltip title={streamMode ? "Stop Stream" : "Start Continuous Detection"}>
@@ -690,7 +756,7 @@ export default function Detector() {
                   ) : filePreview && detectionResult ? (
                     <Box>
                       <DetectionImage 
-                        src={`/api/uploads/${detectionResult.processed_filename}`} 
+                        src={`/api/uploads/${detectionResult.processed_filename}?token=${token}`} 
                         alt="Detection Result" 
                       />
                       <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', gap: 2 }}>
@@ -835,6 +901,7 @@ export default function Detector() {
                           startIcon={<SaveIcon />}
                           variant="outlined"
                           size="small"
+                          onClick={handleSaveDetection}
                         >
                           Save
                         </Button>
@@ -842,6 +909,7 @@ export default function Detector() {
                           startIcon={<ShareIcon />}
                           variant="outlined"
                           size="small"
+                          onClick={handleShareDetection}
                         >
                           Share
                         </Button>

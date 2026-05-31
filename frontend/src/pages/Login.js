@@ -133,7 +133,7 @@ const Login = () => {
               size="small"
               onClick={() => {
                 setEmail('admin@example.com');
-                setPassword('admin');
+                setPassword('admin123');
               }}
             >
               Admin Account

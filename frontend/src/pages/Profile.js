@@ -23,7 +23,7 @@ const Profile = () => {
   const { currentUser, updateProfile, updatePassword } = useAuth();
   const [tab, setTab] = useState(0);
   const [profileData, setProfileData] = useState({
-    name: currentUser?.displayName || '',
+    name: currentUser?.name || '',
     email: currentUser?.email || '',
     organization: currentUser?.organization || '',
     phone: currentUser?.phone || '',
@@ -160,10 +160,10 @@ const Profile = () => {
                 <Box position="relative" mb={2}>
                   <Avatar
                     sx={{ width: 100, height: 100, fontSize: '3rem' }}
-                    alt={currentUser?.displayName || "User"}
+                    alt={currentUser?.name || "User"}
                     src={currentUser?.photoURL || ""}
                   >
-                    {(currentUser?.displayName || "User")[0].toUpperCase()}
+                    {(currentUser?.name || "User")[0].toUpperCase()}
                   </Avatar>
                   <label htmlFor="avatar-upload">
                     <input
@@ -366,7 +366,7 @@ const Profile = () => {
               Member Since
             </Typography>
             <Typography variant="body1">
-              {new Date(currentUser?.createdAt || Date.now()).toLocaleDateString()}
+              {new Date(currentUser?.created_at || Date.now()).toLocaleDateString()}
             </Typography>
           </Grid>
           <Grid item xs={6} sm={3}>
@@ -374,7 +374,7 @@ const Profile = () => {
               Last Login
             </Typography>
             <Typography variant="body1">
-              {new Date(currentUser?.lastLoginAt || Date.now()).toLocaleDateString()}
+              {new Date(currentUser?.last_login || Date.now()).toLocaleDateString()}
             </Typography>
           </Grid>
           <Grid item xs={6} sm={3}>

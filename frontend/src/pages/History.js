@@ -21,7 +21,7 @@ import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 
 const History = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, token } = useAuth();
   const [detections, setDetections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -87,7 +87,7 @@ const History = () => {
               >
                 <MenuItem value="all">All Detections</MenuItem>
                 <MenuItem value="Emergency Vehicle">Emergency Vehicles</MenuItem>
-                <MenuItem value="Regular Vehicle">Regular Vehicles</MenuItem>
+                <MenuItem value="Normal Vehicle">Regular Vehicles</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -132,7 +132,7 @@ const History = () => {
                     <CardMedia
                       component="img"
                       height="180"
-                      image={`/api/uploads/${detection.filename}`}
+                      image={`/api/uploads/${detection.filename}?token=${token}`}
                       alt={`Detection ${detection.detection_id}`}
                       sx={{ objectFit: 'cover' }}
                     />
@@ -144,7 +144,7 @@ const History = () => {
                           size="small"
                         />
                         <Typography variant="body2">
-                          {Math.round(detection.confidence * 100)}% confidence
+                          {Math.round(detection.confidence)}% confidence
                         </Typography>
                       </Box>
                       

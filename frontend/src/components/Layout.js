@@ -15,7 +15,8 @@ import {
   Settings as SettingsIcon,
   Equalizer as StatsIcon,
   ExitToApp as LogoutIcon,
-  Person as PersonIcon
+  Person as PersonIcon,
+  Map as MapIcon
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
@@ -132,6 +133,7 @@ export default function Layout({ children }) {
   const menuItems = [
     { text: 'Home', icon: <HomeIcon />, path: '/' },
     { text: 'Detector', icon: <DetectorIcon />, path: '/detector' },
+    { text: 'Map Monitor', icon: <MapIcon />, path: '/map-monitor' },
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
     { text: 'History', icon: <HistoryIcon />, path: '/history' },
   ];
@@ -177,10 +179,10 @@ export default function Layout({ children }) {
         <Box sx={{ p: 2 }}>
           <Divider sx={{ mb: 2 }} />
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <StyledAvatar>{currentUser?.username?.charAt(0).toUpperCase()}</StyledAvatar>
+            <StyledAvatar>{currentUser?.name?.charAt(0).toUpperCase()}</StyledAvatar>
             <Box sx={{ ml: 2 }}>
               <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                {currentUser?.username}
+                {currentUser?.name}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'capitalize' }}>
                 {currentUser?.role || 'User'}
@@ -242,7 +244,7 @@ export default function Layout({ children }) {
           {isAuthenticated ? (
             <>
               <StyledAvatar onClick={handleMenuOpen}>
-                {currentUser?.username?.charAt(0).toUpperCase()}
+                {currentUser?.name?.charAt(0).toUpperCase()}
               </StyledAvatar>
               <Menu
                 anchorEl={anchorEl}

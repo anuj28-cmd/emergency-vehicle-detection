@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext();
@@ -14,6 +14,30 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('authToken'));
   const [loading, setLoading] = useState(true);
+
+  const logout = useCallback(() => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+    setToken(null);
+    setCurrentUser(null);
+    delete axios.defaults.headers.common['Authorization'];
+  }, []);
+
+  // Handle unauthorized responses globally
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response && error.response.status === 401) {
+          logout();
+        }
+        return Promise.reject(error);
+      }
+    );
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
+  }, [logout]);
 
   // Set auth token for all future requests
   useEffect(() => {
@@ -113,16 +137,9 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('currentUser');
-    setToken(null);
-    setCurrentUser(null);
-    delete axios.defaults.headers.common['Authorization'];
-  };
-
   const value = {
     currentUser,
+    token,
     login,
     register,
     logout,

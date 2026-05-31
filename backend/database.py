@@ -69,18 +69,42 @@ class Database:
         admin_count = cursor.fetchone()[0]
         
         if admin_count == 0:
-            self.add_user(
-                email='admin@example.com',
-                password='admin',
+            # Create a strong admin password. Prefer setting ADMIN_EMAIL and ADMIN_PASSWORD env vars in production.
+            admin_email = os.environ.get('ADMIN_EMAIL', 'admin@example.com')
+            admin_password = os.environ.get('ADMIN_PASSWORD')
+            if not admin_password:
+                try:
+                    import secrets
+                    admin_password = secrets.token_urlsafe(16)
+                except Exception:
+                    admin_password = 'please-change-this-password'
+
+            admin_id = self.add_user(
+                email=admin_email,
+                password=admin_password,
                 name='Admin User',
                 role='admin'
             )
+
+            # Create a test user with a generated password (only for local testing)
+            test_email = os.environ.get('TEST_USER_EMAIL', 'user@example.com')
+            test_password = os.environ.get('TEST_USER_PASSWORD') or 'password'
             self.add_user(
-                email='user@example.com',
-                password='password',
+                email=test_email,
+                password=test_password,
                 name='Test User',
                 role='user'
             )
+
+            # Persist the generated admin credentials to a file for developer reference
+            try:
+                creds_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'initial_admin.txt')
+                with open(creds_path, 'w') as f:
+                    f.write(f"admin_email={admin_email}\n")
+                    f.write(f"admin_password={admin_password}\n")
+                print(f"Generated initial admin credentials saved to {creds_path}")
+            except Exception:
+                pass
             
         conn.close()
     

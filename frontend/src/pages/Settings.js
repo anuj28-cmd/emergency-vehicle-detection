@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Typography,
@@ -22,6 +22,7 @@ import {
   InputLabel
 } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
+import axios from 'axios';
 
 const Settings = () => {
   const { currentUser } = useAuth();
@@ -48,6 +49,38 @@ const Settings = () => {
     notificationFrequency: 'immediate'
   });
 
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await axios.get('/api/settings');
+        const data = response.data;
+        
+        setSystemSettings({
+          detectionConfidenceThreshold: parseInt(data.detection_threshold || '70'),
+          enableNotifications: data.notifications === 'true' || data.notifications === undefined,
+          notifyEmergencyServices: data.emergency_services === 'true' || data.emergency_services === undefined,
+          trafficSystemIntegration: data.traffic_system === 'true' || data.traffic_system === undefined,
+          retentionPeriod: parseInt(data.retention_period || '30'),
+          apiEndpoint: data.api_endpoint || 'http://localhost:5000',
+          modelVersion: data.model_version || 'emergency_vehicle_model_final.h5'
+        });
+        
+        setNotificationSettings({
+          emailNotifications: data.email_notifications === 'true' || data.email_notifications === undefined,
+          emailRecipients: data.email_recipients || 'admin@example.com',
+          smsNotifications: data.sms_notifications === 'true',
+          smsRecipients: data.sms_recipients || '',
+          notificationFrequency: data.notification_frequency || 'immediate'
+        });
+      } catch (err) {
+        console.error("Failed to load settings:", err);
+        setError(err.response?.data?.message || 'Failed to load settings');
+      }
+    };
+    
+    fetchSettings();
+  }, []);
+
   const handleSystemSettingChange = (setting, value) => {
     setSystemSettings({
       ...systemSettings,
@@ -62,20 +95,46 @@ const Settings = () => {
     });
   };
 
-  const saveSystemSettings = () => {
-    // In a real app, this would send the settings to the backend
-    console.log('Saving system settings:', systemSettings);
-    setSuccess(true);
-    // Simulate API call
-    setTimeout(() => setSuccess(false), 3000);
+  const saveSystemSettings = async () => {
+    setError('');
+    setSuccess(false);
+    try {
+      const payload = {
+        detection_threshold: systemSettings.detectionConfidenceThreshold,
+        notifications: systemSettings.enableNotifications,
+        emergency_services: systemSettings.notifyEmergencyServices,
+        traffic_system: systemSettings.trafficSystemIntegration,
+        retention_period: systemSettings.retentionPeriod,
+        api_endpoint: systemSettings.apiEndpoint,
+        model_version: systemSettings.modelVersion
+      };
+      await axios.post('/api/settings', payload);
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      console.error("Failed to save system settings:", err);
+      setError(err.response?.data?.message || 'Failed to save system settings');
+    }
   };
 
-  const saveNotificationSettings = () => {
-    // In a real app, this would send the settings to the backend
-    console.log('Saving notification settings:', notificationSettings);
-    setSuccess(true);
-    // Simulate API call
-    setTimeout(() => setSuccess(false), 3000);
+  const saveNotificationSettings = async () => {
+    setError('');
+    setSuccess(false);
+    try {
+      const payload = {
+        email_notifications: notificationSettings.emailNotifications,
+        email_recipients: notificationSettings.emailRecipients,
+        sms_notifications: notificationSettings.smsNotifications,
+        sms_recipients: notificationSettings.smsRecipients,
+        notification_frequency: notificationSettings.notificationFrequency
+      };
+      await axios.post('/api/settings', payload);
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      console.error("Failed to save notification settings:", err);
+      setError(err.response?.data?.message || 'Failed to save notification settings');
+    }
   };
 
   return (

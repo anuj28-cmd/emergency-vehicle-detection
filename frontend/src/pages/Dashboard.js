@@ -84,7 +84,7 @@ const StatCard = ({ icon, title, value, color, percentage, subtitle }) => (
 // Dashboard Component
 const Dashboard = () => {
   const theme = useTheme();
-  const { user } = useAuth();
+  const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState('week'); // week, month, year
   const [detections, setDetections] = useState([]);
@@ -222,7 +222,7 @@ const Dashboard = () => {
             color="text.secondary"
             gutterBottom
           >
-            Welcome back, {user?.username || 'User'}! Here's your detection analytics.
+            Welcome back, {currentUser?.name || 'User'}! Here's your detection analytics.
           </Typography>
         </Box>
         
